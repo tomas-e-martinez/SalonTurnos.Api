@@ -6,8 +6,8 @@
         public int SalonId { get; set; }
         public DateTime FechaHora { get; set; }
         public bool Disponible { get; set; }
-        public string ClienteNombre { get; set; }
-        public string ClienteEmail { get; set; }
-        public string ClienteTelefono { get; set; }
+        public string? ClienteNombre { get; set; }
+        public string? ClienteEmail { get; set; }
+        public string? ClienteTelefono { get; set; }
     }
 }

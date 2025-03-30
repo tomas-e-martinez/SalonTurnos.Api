@@ -17,9 +17,19 @@ namespace SalonTurnos.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Turno>>> GetTurnos()
+        public async Task<ActionResult<IEnumerable<Turno>>> GetTurnos(
+            [FromQuery] bool? disponible,
+            [FromQuery] int? salonId)
         {
-            var turnos = await _context.Turnos.ToListAsync();
+            IQueryable<Turno> query = _context.Turnos;
+
+            if(disponible.HasValue)
+                query = query.Where(t => t.Disponible == disponible.Value);
+
+            if(salonId.HasValue)
+                query = query.Where(t => t.SalonId == salonId.Value);
+
+            var turnos = await query.ToListAsync();
             return Ok(turnos);
         }
 
@@ -34,16 +44,24 @@ namespace SalonTurnos.Api.Controllers
             return turno;
         }
 
-        [HttpPost]
+        [HttpPost("single")]
         public async Task<ActionResult<Turno>> PostTurno(Turno turno)
         {
-            if(turno == null)
+            if (turno == null)
                 return BadRequest();
 
             _context.Turnos.Add(turno);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetTurno), new {id = turno.Id }, turno);
+            return CreatedAtAction(nameof(GetTurno), new { id = turno.Id }, turno);
+        }
+
+        [HttpPost("multiple")]
+        public async Task<ActionResult<IEnumerable<Turno>>> PostTurnos(IEnumerable<Turno> turnos)
+        {
+            _context.Turnos.AddRange(turnos);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetTurnos), turnos);
         }
 
         [HttpPut("{id}")]
